@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StarkYield — One-Tap Crypto Yield</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #080b10;
+      --surface: #0e1420;
+      --surface2: #141b28;
+      --border: rgba(255,255,255,0.07);
+      --accent: #00f5a0;
+      --accent2: #00c8ff;
+      --accent3: #f5a623;
+      --text: #e8edf5;
+      --muted: #5a6580;
+      --danger: #ff4d6d;
+      --card-glow: rgba(0,245,160,0.06);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'IBM Plex Mono', monospace;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Background grid */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,245,160,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,245,160,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Ambient glow */
+    body::after {
+      content: '';
+      position: fixed;
+      top: -200px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 600px;
+      background: radial-gradient(ellipse, rgba(0,245,160,0.07) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .app { position: relative; z-index: 1; }
+
+    /* HEADER */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px 40px;
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(8,11,16,0.85);
+    }
+
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 22px;
+      letter-spacing: -0.5px;
+    }
+    .logo span { color: var(--accent); }
+
+    .logo-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-family: 'IBM Plex Mono', monospace;
+      background: rgba(0,245,160,0.1);
+      color: var(--accent);
+      border: 1px solid rgba(0,245,160,0.3);
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-left: 10px;
+      vertical-align: middle;
+      letter-spacing: 1px;
+    }
+
+    .header-right { display: flex; align-items: center; gap: 16px; }
+
+    .network-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 20px;
+    }
+    .network-dot {
+      width: 6px; height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    .btn {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.5px;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #000;
+      font-weight: 500;
+    }
+    .btn-primary:hover {
+      background: #00ffaa;
+      box-shadow: 0 0 20px rgba(0,245,160,0.4);
+      transform: translateY(-1px);
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* HERO */
+    .hero {
+      text-align: center;
+      padding: 80px 40px 60px;
+      animation: fadeUp 0.8s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-label {
+      display: inline-block;
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      border: 1px solid rgba(0,245,160,0.25);
+      padding: 5px 14px;
+      border-radius: 20px;
+    }
+
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(36px, 5vw, 64px);
+      line-height: 1.1;
+      letter-spacing: -2px;
+      margin-bottom: 20px;
+    }
+
+    .hero h1 .highlight {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: 15px;
+      color: var(--muted);
+      max-width: 480px;
+      margin: 0 auto 36px;
+      line-height: 1.7;
+    }
+
+    .hero-cta { display: flex; gap: 12px; justify-content: center; }
+
+    /* STATS ROW */
+    .stats-row {
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      margin: 0 40px;
+      animation: fadeUp 0.8s 0.2s ease both;
+    }
+
+    .stat-item {
+      flex: 1;
+      max-width: 200px;
+      padding: 28px 24px;
+      text-align: center;
+      border-right: 1px solid var(--border);
+    }
+    .stat-item:last-child { border-right: none; }
+
+    .stat-value {
+      font-family: 'Syne', sans-serif;
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--accent);
+      display: block;
+    }
+    .stat-label {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-top: 4px;
+    }
+
+    /* MAIN LAYOUT */
+    .main {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 24px;
+      padding: 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+      animation: fadeUp 0.8s 0.3s ease both;
+    }
+
+    /* SECTION TITLE */
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    /* POOL CARDS */
+    .pool-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 12px;
+      transition: all 0.25s;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pool-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--card-glow);
+      opacity: 0;
+      transition: opacity 0.25s;
+    }
+
+    .pool-card:hover {
+      border-color: rgba(0,245,160,0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+    .pool-card:hover::before { opacity: 1; }
+
+    .pool-card.selected {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent), 0 8px 32px rgba(0,245,160,0.1);
+    }
+
+    .pool-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .pool-icon-name { display: flex; align-items: center; gap: 12px; }
+
+    .pool-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .pool-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .pool-protocol {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .pool-apy {
+      text-align: right;
+    }
+    .apy-value {
+      font-family: 'Syne', sans-serif;
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--accent);
+    }
+    .apy-label {
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 1px;
+    }
+
+    .pool-meta {
+      display: flex;
+      gap: 20px;
+    }
+    .meta-item {
+      font-size: 11px;
+    }
+    .meta-label { color: var(--muted); margin-bottom: 3px; }
+    .meta-value { color: var(--text); font-weight: 500; }
+
+    .pool-bar {
+      height: 3px;
+      background: var(--border);
+      border-radius: 2px;
+      margin-top: 16px;
+      overflow: hidden;
+    }
+    .pool-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transition: width 1s ease;
+    }
+
+    .risk-badge {
+      display: inline-block;
+      font-size: 9px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 4px;
+      margin-top: 12px;
+    }
+    .risk-low { background: rgba(0,245,160,0.1); color: var(--accent); border: 1px solid rgba(0,245,160,0.2); }
+    .risk-med { background: rgba(245,166,35,0.1); color: var(--accent3); border: 1px solid rgba(245,166,35,0.2); }
+
+    /* SIDEBAR */
+    .sidebar {}
+
+    .wallet-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+
+    .wallet-disconnected {
+      text-align: center;
+      padding: 12px 0;
+    }
+    .wallet-disconnected p {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 16px;
+      line-height: 1.6;
+    }
+
+    .wallet-connected { display: none; }
+
+    .wallet-address {
+      font-size: 13px;
+      color: var(--accent);
+      font-family: 'IBM Plex Mono', monospace;
+      background: rgba(0,245,160,0.07);
+      padding: 8px 12px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      word-break: break-all;
+    }
+
+    .balance-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+    }
+    .balance-row:last-child { border-bottom: none; }
+    .balance-token { color: var(--muted); }
+    .balance-amount { color: var(--text); font-weight: 500; }
+
+    /* STAKE FORM */
+    .stake-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+
+    .stake-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .selected-pool-display {
+      background: var(--surface2);
+      border: 1px solid rgba(0,245,160,0.2);
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      font-size: 12px;
+      color: var(--muted);
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+    }
+    .selected-pool-display.has-pool { color: var(--accent); }
+
+    .input-group { margin-bottom: 14px; }
+    .input-label {
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .amount-input-wrap {
+      position: relative;
+    }
+    .amount-input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 60px 12px 16px;
+      color: var(--text);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .amount-input:focus { border-color: var(--accent); }
+    .input-token {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .quick-amounts {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .quick-btn {
+      flex: 1;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      padding: 6px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .quick-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    .yield-preview {
+      background: rgba(0,245,160,0.05);
+      border: 1px solid rgba(0,245,160,0.15);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      font-size: 12px;
+    }
+    .yield-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .yield-row:last-child { margin-bottom: 0; }
+    .yield-key { color: var(--muted); }
+    .yield-val { color: var(--accent); font-weight: 500; }
+
+    .gasless-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      color: var(--accent2);
+      margin-bottom: 14px;
+      background: rgba(0,200,255,0.06);
+      border: 1px solid rgba(0,200,255,0.15);
+      padding: 8px 12px;
+      border-radius: 8px;
+    }
+    .gasless-badge::before { content: '⚡'; }
+
+    .btn-stake {
+      width: 100%;
+      padding: 16px;
+      font-size: 14px;
+      border-radius: 12px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+
+    /* POSITIONS */
+    .positions-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+    }
+
+    .position-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+    }
+    .position-item:last-child { border-bottom: none; }
+
+    .pos-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+    .pos-amount { color: var(--muted); font-size: 11px; }
+
+    .pos-right { text-align: right; }
+    .pos-earning { color: var(--accent); font-size: 13px; font-weight: 500; }
+    .pos-apy { color: var(--muted); font-size: 10px; margin-top: 2px; }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 32px;
+      right: 32px;
+      background: var(--surface2);
+      border: 1px solid var(--accent);
+      border-radius: 12px;
+      padding: 16px 20px;
+      font-size: 13px;
+      max-width: 300px;
+      z-index: 999;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 8px 32px rgba(0,245,160,0.15);
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
+    .toast-msg { color: var(--muted); font-size: 11px; line-height: 1.5; }
+
+    /* MODAL */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(6px);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .modal-overlay.active { opacity: 1; pointer-events: all; }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+      max-width: 420px;
+      width: 90%;
+      transform: scale(0.9);
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .modal-overlay.active .modal { transform: scale(1); }
+
+    .modal-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .modal-sub { font-size: 12px; color: var(--muted); margin-bottom: 24px; line-height: 1.5; }
+
+    .wallet-option {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .wallet-option:hover { border-color: var(--accent); transform: translateX(4px); }
+    .wallet-option-icon { font-size: 28px; }
+    .wallet-option-name {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .wallet-option-desc { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    .modal-close {
+      float: right;
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 20px;
+      line-height: 1;
+      margin-top: -4px;
+    }
+
+    /* TX SPINNER */
+    .tx-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(8px);
+      z-index: 300;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .tx-overlay.active { opacity: 1; pointer-events: all; }
+
+    .tx-modal {
+      text-align: center;
+      padding: 40px;
+    }
+    .tx-spinner {
+      width: 60px;
+      height: 60px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 20px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .tx-status {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .tx-detail { font-size: 12px; color: var(--muted); }
+
+    .tx-success { display: none; }
+    .tx-success-icon {
+      font-size: 56px;
+      margin-bottom: 16px;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      .main { grid-template-columns: 1fr; }
+      header { padding: 16px 20px; }
+      .stats-row { margin: 0 20px; flex-wrap: wrap; }
+      .stat-item { max-width: none; border-right: none; border-bottom: 1px solid var(--border); }
+      .hero { padding: 48px 20px 40px; }
+      .main { padding: 24px 20px; }
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">
+      Stark<span>Yield</span>
+      <span class="logo-badge">BETA</span>
+    </div>
+    <div class="header-right">
+      <div class="network-pill">
+        <div class="network-dot"></div>
+        Starknet Mainnet
+      </div>
+      <button class="btn btn-primary" onclick="openWalletModal()">Connect Wallet</button>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-label">Powered by Starkzap SDK</div>
+    <h1>One-tap <span class="highlight">crypto yield</span><br/>on Starknet</h1>
+    <p>Connect your wallet, pick a pool, stake in one click. No gas fees. No complexity. Just yield.</p>
+    <div class="hero-cta">
+      <button class="btn btn-primary" onclick="openWalletModal()">Start Earning →</button>
+      <a href="https://github.com/keep-starknet-strange/starkzap" target="_blank">
+        <button class="btn btn-ghost">View Docs</button>
+      </a>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat-item">
+      <span class="stat-value" id="tvl-counter">$0</span>
+      <div class="stat-label">Total Value Locked</div>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value">3</span>
+      <div class="stat-label">Active Pools</div>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value">0%</span>
+      <div class="stat-label">Gas Fees (Paymaster)</div>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value" id="users-counter">0</span>
+      <div class="stat-label">Stakers</div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- LEFT: POOLS -->
+    <div>
+      <div class="section-title">// Yield Pools</div>
+
+      <!-- Pool 1 -->
+      <div class="pool-card selected" onclick="selectPool(this, 'STRK Staking Pool', '12.4', 'STRK')">
+        <div class="pool-header">
+          <div class="pool-icon-name">
+            <div class="pool-icon" style="background:rgba(0,245,160,0.1)">🟢</div>
+            <div>
+              <div class="pool-name">STRK Staking Pool</div>
+              <div class="pool-protocol">Starknet Native · Starkzap Staking</div>
+            </div>
+          </div>
+          <div class="pool-apy">
+            <div class="apy-value">12.4%</div>
+            <div class="apy-label">APY</div>
+          </div>
+        </div>
+        <div class="pool-meta">
+          <div class="meta-item">
+            <div class="meta-label">TVL</div>
+            <div class="meta-value">$4.2M</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Min Stake</div>
+            <div class="meta-value">1 STRK</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Lock Period</div>
+            <div class="meta-value">None</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Rewards</div>
+            <div class="meta-value">Daily</div>
+          </div>
+        </div>
+        <div class="pool-bar"><div class="pool-bar-fill" style="width:72%"></div></div>
+        <span class="risk-badge risk-low">LOW RISK</span>
+      </div>
+
+      <!-- Pool 2 -->
+      <div class="pool-card" onclick="selectPool(this, 'BTC Yield Vault', '8.7', 'BTC')">
+        <div class="pool-header">
+          <div class="pool-icon-name">
+            <div class="pool-icon" style="background:rgba(245,166,35,0.1)">🟠</div>
+            <div>
+              <div class="pool-name">BTC Yield Vault</div>
+              <div class="pool-protocol">Wrapped BTC · Starkzap Wallets</div>
+            </div>
+          </div>
+          <div class="pool-apy">
+            <div class="apy-value" style="color:var(--accent3)">8.7%</div>
+            <div class="apy-label">APY</div>
+          </div>
+        </div>
+        <div class="pool-meta">
+          <div class="meta-item">
+            <div class="meta-label">TVL</div>
+            <div class="meta-value">$9.8M</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Min Stake</div>
+            <div class="meta-value">0.001 BTC</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Lock Period</div>
+            <div class="meta-value">7 days</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Rewards</div>
+            <div class="meta-value">Weekly</div>
+          </div>
+        </div>
+        <div class="pool-bar"><div class="pool-bar-fill" style="width:55%; background: linear-gradient(90deg, var(--accent3), #ff9500)"></div></div>
+        <span class="risk-badge risk-med">MEDIUM RISK</span>
+      </div>
+
+      <!-- Pool 3 -->
+      <div class="pool-card" onclick="selectPool(this, 'USDC Stable Pool', '6.1', 'USDC')">
+        <div class="pool-header">
+          <div class="pool-icon-name">
+            <div class="pool-icon" style="background:rgba(0,200,255,0.1)">🔵</div>
+            <div>
+              <div class="pool-name">USDC Stable Pool</div>
+              <div class="pool-protocol">Stablecoin · Paymaster Enabled</div>
+            </div>
+          </div>
+          <div class="pool-apy">
+            <div class="apy-value" style="color:var(--accent2)">6.1%</div>
+            <div class="apy-label">APY</div>
+          </div>
+        </div>
+        <div class="pool-meta">
+          <div class="meta-item">
+            <div class="meta-label">TVL</div>
+            <div class="meta-value">$12.1M</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Min Stake</div>
+            <div class="meta-value">10 USDC</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Lock Period</div>
+            <div class="meta-value">None</div>
+          </div>
+          <div class="meta-item">
+            <div class="meta-label">Rewards</div>
+            <div class="meta-value">Daily</div>
+          </div>
+        </div>
+        <div class="pool-bar"><div class="pool-bar-fill" style="width:88%; background: linear-gradient(90deg, var(--accent2), #0080ff)"></div></div>
+        <span class="risk-badge risk-low">LOW RISK</span>
+      </div>
+    </div>
+
+    <!-- RIGHT: SIDEBAR -->
+    <div class="sidebar">
+
+      <!-- Wallet Card -->
+      <div class="wallet-card">
+        <div class="section-title">// Wallet</div>
+
+        <div class="wallet-disconnected" id="wallet-disconnected">
+          <p>Connect your Starknet wallet to start earning yield with zero gas fees.</p>
+          <button class="btn btn-primary" style="width:100%" onclick="openWalletModal()">Connect Wallet</button>
+        </div>
+
+        <div class="wallet-connected" id="wallet-connected">
+          <div class="wallet-address" id="wallet-address-display">0x0000...0000</div>
+          <div class="balance-row">
+            <span class="balance-token">STRK</span>
+            <span class="balance-amount" id="bal-strk">245.00</span>
+          </div>
+          <div class="balance-row">
+            <span class="balance-token">BTC</span>
+            <span class="balance-amount" id="bal-btc">0.0412</span>
+          </div>
+          <div class="balance-row">
+            <span class="balance-token">USDC</span>
+            <span class="balance-amount" id="bal-usdc">1,240.00</span>
+          </div>
+          <div style="margin-top:12px">
+            <button class="btn btn-ghost" style="width:100%;font-size:11px" onclick="disconnectWallet()">Disconnect</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stake Card -->
+      <div class="stake-card">
+        <div class="stake-title">One-Tap Stake</div>
+
+        <div class="selected-pool-display" id="selected-pool-display">
+          ← Select a pool to continue
+        </div>
+
+        <div class="input-group">
+          <div class="input-label">Amount</div>
+          <div class="amount-input-wrap">
+            <input type="number" class="amount-input" id="stake-amount" placeholder="0.00" oninput="updatePreview()"/>
+            <span class="input-token" id="input-token">STRK</span>
+          </div>
+          <div class="quick-amounts">
+            <button class="quick-btn" onclick="setAmount(25)">25%</button>
+            <button class="quick-btn" onclick="setAmount(50)">50%</button>
+            <button class="quick-btn" onclick="setAmount(75)">75%</button>
+            <button class="quick-btn" onclick="setAmount(100)">MAX</button>
+          </div>
+        </div>
+
+        <div class="yield-preview" id="yield-preview" style="display:none">
+          <div class="yield-row">
+            <span class="yield-key">Daily yield</span>
+            <span class="yield-val" id="daily-yield">—</span>
+          </div>
+          <div class="yield-row">
+            <span class="yield-key">Monthly yield</span>
+            <span class="yield-val" id="monthly-yield">—</span>
+          </div>
+          <div class="yield-row">
+            <span class="yield-key">Yearly yield</span>
+            <span class="yield-val" id="yearly-yield">—</span>
+          </div>
+        </div>
+
+        <div class="gasless-badge">Gasless transaction via Starkzap Paymaster</div>
+
+        <button class="btn btn-primary btn-stake" onclick="handleStake()">
+          Stake Now — Zero Gas ⚡
+        </button>
+      </div>
+
+      <!-- Positions Card -->
+      <div class="positions-card" id="positions-card" style="display:none">
+        <div class="section-title">// Your Positions</div>
+        <div id="positions-list"></div>
+        <div style="margin-top:14px;font-size:11px;color:var(--muted);text-align:center">
+          Total earning: <span style="color:var(--accent)" id="total-earning">0.00</span> / day
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- WALLET MODAL -->
+<div class="modal-overlay" id="wallet-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeWalletModal()">✕</button>
+    <div class="modal-title">Connect Wallet</div>
+    <div class="modal-sub">Choose your Starknet wallet to connect. Transactions are gasless via the Starkzap Paymaster.</div>
+    <div class="wallet-option" onclick="connectWallet('ArgentX', '0x04a8...f3c2')">
+      <div class="wallet-option-icon">🟦</div>
+      <div>
+        <div class="wallet-option-name">ArgentX</div>
+        <div class="wallet-option-desc">Most popular Starknet wallet</div>
+      </div>
+    </div>
+    <div class="wallet-option" onclick="connectWallet('Braavos', '0x07b2...a91d')">
+      <div class="wallet-option-icon">🛡️</div>
+      <div>
+        <div class="wallet-option-name">Braavos</div>
+        <div class="wallet-option-desc">Smart wallet with extra security</div>
+      </div>
+    </div>
+    <div class="wallet-option" onclick="connectWallet('OKX Wallet', '0x09f1...2b44')">
+      <div class="wallet-option-icon">⭕</div>
+      <div>
+        <div class="wallet-option-name">OKX Wallet</div>
+        <div class="wallet-option-desc">Multi-chain support</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TX OVERLAY -->
+<div class="tx-overlay" id="tx-overlay">
+  <div class="tx-modal">
+    <div id="tx-processing">
+      <div class="tx-spinner"></div>
+      <div class="tx-status">Processing Transaction</div>
+      <div class="tx-detail" id="tx-detail-text">Submitting via Starkzap Paymaster...</div>
+    </div>
+    <div class="tx-success" id="tx-success">
+      <div class="tx-success-icon">✅</div>
+      <div class="tx-status" style="color:var(--accent)">Staked Successfully!</div>
+      <div class="tx-detail" id="tx-success-detail" style="margin-top:8px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-title" id="toast-title"></div>
+  <div class="toast-msg" id="toast-msg"></div>
+</div>
+
+<script>
+  // STATE
+  let walletConnected = false;
+  let walletName = '';
+  let selectedPool = { name: 'STRK Staking Pool', apy: 12.4, token: 'STRK' };
+  let positions = [];
+
+  // ANIMATE COUNTERS
+  function animateCounter(el, target, prefix='$', suffix='', decimals=1) {
+    let start = 0;
+    const step = target / 60;
+    const timer = setInterval(() => {
+      start += step;
+      if (start >= target) { start = target; clearInterval(timer); }
+      const val = decimals === 0 ? Math.floor(start).toLocaleString() : start.toFixed(decimals);
+      el.textContent = prefix + val + suffix;
+    }, 16);
+  }
+
+  setTimeout(() => {
+    animateCounter(document.getElementById('tvl-counter'), 26.1, '$', 'M');
+    animateCounter(document.getElementById('users-counter'), 1247, '', '', 0);
+  }, 500);
+
+  // SELECT POOL
+  function selectPool(card, name, apy, token) {
+    document.querySelectorAll('.pool-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    selectedPool = { name, apy: parseFloat(apy), token };
+    const disp = document.getElementById('selected-pool-display');
+    disp.textContent = `${name} · ${apy}% APY`;
+    disp.classList.add('has-pool');
+    document.getElementById('input-token').textContent = token;
+    updatePreview();
+  }
+
+  // AMOUNT HELPERS
+  const balances = { STRK: 245, BTC: 0.0412, USDC: 1240 };
+
+  function setAmount(pct) {
+    const bal = balances[selectedPool.token] || 100;
+    document.getElementById('stake-amount').value = (bal * pct / 100).toFixed(4);
+    updatePreview();
+  }
+
+  function updatePreview() {
+    const amt = parseFloat(document.getElementById('stake-amount').value);
+    const preview = document.getElementById('yield-preview');
+    if (!amt || amt <= 0) { preview.style.display = 'none'; return; }
+    preview.style.display = 'block';
+    const daily = (amt * selectedPool.apy / 100 / 365);
+    const monthly = daily * 30;
+    const yearly = amt * selectedPool.apy / 100;
+    const t = selectedPool.token;
+    document.getElementById('daily-yield').textContent = `+${daily.toFixed(4)} ${t}`;
+    document.getElementById('monthly-yield').textContent = `+${monthly.toFixed(4)} ${t}`;
+    document.getElementById('yearly-yield').textContent = `+${yearly.toFixed(4)} ${t}`;
+  }
+
+  // WALLET
+  function openWalletModal() {
+    document.getElementById('wallet-modal').classList.add('active');
+  }
+  function closeWalletModal() {
+    document.getElementById('wallet-modal').classList.remove('active');
+  }
+
+  function connectWallet(name, address) {
+    closeWalletModal();
+    walletConnected = true;
+    walletName = name;
+    document.getElementById('wallet-disconnected').style.display = 'none';
+    document.getElementById('wallet-connected').style.display = 'block';
+    document.getElementById('wallet-address-display').textContent = address;
+    document.querySelector('header .btn-primary').textContent = address.slice(0,10) + '...';
+    showToast('Wallet Connected ✓', `${name} connected via Starkzap. Gas fees: $0.00`);
+  }
+
+  function disconnectWallet() {
+    walletConnected = false;
+    document.getElementById('wallet-disconnected').style.display = 'block';
+    document.getElementById('wallet-connected').style.display = 'none';
+    document.querySelector('header .btn-primary').textContent = 'Connect Wallet';
+    showToast('Wallet Disconnected', 'See you soon!');
+  }
+
+  // STAKE
+  function handleStake() {
+    if (!walletConnected) { openWalletModal(); return; }
+    const amt = parseFloat(document.getElementById('stake-amount').value);
+    if (!amt || amt <= 0) {
+      showToast('Enter Amount', 'Please enter a valid amount to stake.');
+      return;
+    }
+
+    // Show TX processing
+    const overlay = document.getElementById('tx-overlay');
+    overlay.classList.add('active');
+    document.getElementById('tx-processing').style.display = 'block';
+    document.getElementById('tx-success').style.display = 'none';
+
+    const steps = [
+      'Submitting via Starkzap Paymaster...',
+      'Paymaster covering gas fees...',
+      'Executing on Starknet...',
+      'Confirming on-chain...'
+    ];
+    let i = 0;
+    const stepInterval = setInterval(() => {
+      if (i < steps.length) {
+        document.getElementById('tx-detail-text').textContent = steps[i++];
+      }
+    }, 600);
+
+    setTimeout(() => {
+      clearInterval(stepInterval);
+      document.getElementById('tx-processing').style.display = 'none';
+      document.getElementById('tx-success').style.display = 'block';
+      document.getElementById('tx-success-detail').textContent =
+        `${amt} ${selectedPool.token} staked in ${selectedPool.name} at ${selectedPool.apy}% APY. Gas paid: $0.00`;
+
+      // Add position
+      addPosition(amt);
+
+      setTimeout(() => {
+        overlay.classList.remove('active');
+        document.getElementById('stake-amount').value = '';
+        document.getElementById('yield-preview').style.display = 'none';
+        showToast('Staking Active 🚀', `Earning ${(amt * selectedPool.apy/100/365).toFixed(4)} ${selectedPool.token}/day`);
+      }, 2000);
+    }, 2800);
+  }
+
+  function addPosition(amt) {
+    positions.push({ pool: selectedPool.name, apy: selectedPool.apy, amount: amt, token: selectedPool.token });
+    renderPositions();
+  }
+
+  function renderPositions() {
+    const card = document.getElementById('positions-card');
+    const list = document.getElementById('positions-list');
+    card.style.display = 'block';
+    list.innerHTML = '';
+    let totalEarning = 0;
+    positions.forEach(p => {
+      const daily = p.amount * p.apy / 100 / 365;
+      totalEarning += daily;
+      list.innerHTML += `
+        <div class="position-item">
+          <div>
+            <div class="pos-name">${p.pool}</div>
+            <div class="pos-amount">${p.amount} ${p.token} staked</div>
+          </div>
+          <div class="pos-right">
+            <div class="pos-earning">+${daily.toFixed(4)} ${p.token}/day</div>
+            <div class="pos-apy">${p.apy}% APY</div>
+          </div>
+        </div>`;
+    });
+    document.getElementById('total-earning').textContent = totalEarning.toFixed(4);
+  }
+
+  // TOAST
+  function showToast(title, msg) {
+    const t = document.getElementById('toast');
+    document.getElementById('toast-title').textContent = title;
+    document.getElementById('toast-msg').textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 4000);
+  }
+
+  // Close modal on overlay click
+  document.getElementById('wallet-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeWalletModal();
+  });
+</script>
+</body>
+</html>
