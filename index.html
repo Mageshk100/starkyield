@@ -4,6 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>StarkYield — One-Tap Crypto Yield</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>"/>
+  <meta name="description" content="One-tap crypto yield on Starknet. Stake STRK, BTC, USDC with zero gas fees via Starkzap Paymaster."/>
+  <meta property="og:title" content="StarkYield — One-Tap Crypto Yield"/>
+  <meta property="og:description" content="Connect wallet, pick a pool, stake in one click. Zero gas fees on Starknet."/>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
   <style>
     :root {
@@ -740,7 +744,7 @@
 
   <!-- HERO -->
   <section class="hero">
-    <div class="hero-label">Powered by Starkzap SDK</div>
+    <div class="hero-label">⚡ Powered by Starkzap SDK · Developer Challenge 2026</div>
     <h1>One-tap <span class="highlight">crypto yield</span><br/>on Starknet</h1>
     <p>Connect your wallet, pick a pool, stake in one click. No gas fees. No complexity. Just yield.</p>
     <div class="hero-cta">
@@ -979,6 +983,64 @@
   </div>
 </div>
 
+<!-- FOOTER -->
+<footer style="
+  border-top: 1px solid rgba(255,255,255,0.07);
+  padding: 32px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 40px;
+  background: rgba(8,11,16,0.6);
+">
+  <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;">
+    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:16px;">
+      Stark<span style="color:var(--accent)">Yield</span>
+    </div>
+    <a href="https://github.com/Mageshk100/starkyield" target="_blank" style="
+      color:var(--muted);
+      text-decoration:none;
+      font-size:11px;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      transition:color 0.2s;
+    " onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">
+      ⭐ View on GitHub
+    </a>
+    <a href="https://github.com/keep-starknet-strange/starkzap" target="_blank" style="
+      color:var(--muted);
+      text-decoration:none;
+      font-size:11px;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      transition:color 0.2s;
+    " onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--muted)'">
+      🔗 Starkzap SDK
+    </a>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+    <div style="
+      font-size:10px;
+      color:var(--muted);
+      letter-spacing:1px;
+    ">Built for</div>
+    <div style="
+      background: linear-gradient(135deg, rgba(0,245,160,0.15), rgba(0,200,255,0.15));
+      border: 1px solid rgba(0,245,160,0.3);
+      color: var(--accent);
+      font-size: 11px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      letter-spacing: 1px;
+      font-family: 'IBM Plex Mono', monospace;
+    ">⚡ STARKZAP DEVELOPER CHALLENGE 2026</div>
+  </div>
+</footer>
+
 <!-- WALLET MODAL -->
 <div class="modal-overlay" id="wallet-modal">
   <div class="modal">
@@ -1038,22 +1100,33 @@
   let selectedPool = { name: 'STRK Staking Pool', apy: 12.4, token: 'STRK' };
   let positions = [];
 
-  // ANIMATE COUNTERS
+  // ANIMATE COUNTERS — reliable version using requestAnimationFrame
   function animateCounter(el, target, prefix='$', suffix='', decimals=1) {
-    let start = 0;
-    const step = target / 60;
-    const timer = setInterval(() => {
-      start += step;
-      if (start >= target) { start = target; clearInterval(timer); }
-      const val = decimals === 0 ? Math.floor(start).toLocaleString() : start.toFixed(decimals);
+    if (!el) return;
+    const duration = 2000;
+    const startTime = performance.now();
+    function update(currentTime) {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = eased * target;
+      const val = decimals === 0 ? Math.floor(current).toLocaleString() : current.toFixed(decimals);
       el.textContent = prefix + val + suffix;
-    }, 16);
+      if (progress < 1) requestAnimationFrame(update);
+    }
+    requestAnimationFrame(update);
   }
 
-  setTimeout(() => {
+  function startCounters() {
     animateCounter(document.getElementById('tvl-counter'), 26.1, '$', 'M');
     animateCounter(document.getElementById('users-counter'), 1247, '', '', 0);
-  }, 500);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startCounters);
+  } else {
+    startCounters();
+  }
 
   // SELECT POOL
   function selectPool(card, name, apy, token) {
