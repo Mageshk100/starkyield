@@ -89,8 +89,8 @@ Position tracked in dashboard ✅
 
 ## 🔗 Links
 
-- **Live App**: [https://starkyield.vercel.app](https://starkyield.vercel.app)
-- **GitHub**: [https://github.com/YOUR_USERNAME/starkyield](https://github.com/YOUR_USERNAME/starkyield)
+- **Live App**: [https://starkyield-mu.vercel.app](https://starkyield-mu.vercel.app)
+- **GitHub**: [https://github.com/Mageshk100/starkyield](https://github.com/Mageshk100/starkyield)
 - **Starkzap SDK**: [https://github.com/keep-starknet-strange/starkzap](https://github.com/keep-starknet-strange/starkzap)
 
 ---
