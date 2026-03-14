@@ -97,7 +97,7 @@ Position tracked in dashboard ✅
 
 ## 🏆 Starkzap Developer Challenge
 
-This project was built for the **Starkzap Developer Challenge** (Feb 24 – Mar 17, 2025).
+This project was built for the **Starkzap Developer Challenge** (Feb 24 – Mar 17, 2026).
 
 **Why StarkYield should win:**
 - Uses **all 3 Starkzap modules** (Wallets + Paymaster + Staking)
@@ -109,4 +109,4 @@ This project was built for the **Starkzap Developer Challenge** (Feb 24 – Mar 
 
 ## 📄 License
 
-MIT © 2025 StarkYield
+MIT © 2026 StarkYield
